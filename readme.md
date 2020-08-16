@@ -1,9 +1,9 @@
 # MakeWP CLient
- - [Instalation](#installation)
+ - [Installation](#installation)
  - [Insights](#insights)
  - [Dynamic Usage](#usage)
  
- ## Instalation
+ ## Installation
   You can install MakeWP Client in two ways, via composer or manually.
  
 ### 1. Composer Installation
