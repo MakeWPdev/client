@@ -54,11 +54,11 @@ You can obtain the hash for your plugin for the [MakeWP Dashboard](https://dashb
 if(!function_exists('makeWP_init_tracker_plugin_name')){
 function makeWP_init_tracker_plugin_name() {
 
-    if ( ! class_exists( 'Appsero\Client' ) ) {
-        require_once __DIR__ . '/appsero/src/Client.php';
+    if ( ! class_exists( 'Makewpdev\Client' ) ) {
+        require_once __DIR__ . '/makewpdev/src/Client.php';
     }
 
-    $client = new Appsero\Client( 'a4a8da5b-b419-4656-98e9-4a42e9044891', 'Akismet', __FILE__ );
+    $client = new \Makewpdev\Client( 'QYwQI-Yu79YOd7-bYf3GJJ5hm-uzACdpk-O88JP6', 'Akismet', __FILE__ );
 
     // Active insights
     $client->insights()->init();
