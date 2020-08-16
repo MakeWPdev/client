@@ -1,0 +1,21 @@
+{
+    "name": "makewpdev/clien",
+    "description": "MakeWP.dev Client",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Hadie Danker",
+
+            "email": "halo@makewp.dev"
+        }
+    ],
+  "autoload": {
+    "psr-4": {
+      "Makewpdev\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=5.3"
+  }
+}
