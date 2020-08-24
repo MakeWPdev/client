@@ -147,7 +147,8 @@ class Client {
 	 * @return string
 	 */
 	public function endpoint() {
-		$endpoint = apply_filters( 'makewpdev_endpoint', 'https://api.makewp.dev' );
+	    $url = defined('MAKEWP_DEVELOPMENT') ? 'https://api.makewp.test:8890/v1':'https://api.makewp.dev/v1';
+		$endpoint = apply_filters( 'makewpdev_endpoint', $url );
 
 		return trailingslashit( $endpoint );
 	}

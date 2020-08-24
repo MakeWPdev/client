@@ -232,7 +232,7 @@ class Insights {
 			'inactive_plugins' => count( $all_plugins['inactive_plugins'] ),
 			'ip_address'       => $this->get_user_ip_address(),
 			'theme'            => get_stylesheet(),
-			'version'          => $this->client->project_version,
+
 		);
 
 		// Add metadata
