@@ -229,20 +229,38 @@ class Client {
 		$headers = array(
 			'user-agent' => 'MakeWP/' . md5( esc_url( home_url() ) ) . ';',
 			'Accept'     => 'application/json',
-		);
+            'Token' => $this->hash,
+            'referer' => home_url()
+        );
 
+		$body = array_merge( $params, array( 'client' => $this->version ) );
 		$response = wp_remote_post( $url, array(
 			'method'      => 'POST',
-			'timeout'     => 30,
-			'redirection' => 5,
-			'httpversion' => '1.0',
-			'blocking'    => $blocking,
-			'headers'     => $headers,
-			'body'        => array_merge( $params, array( 'client' => $this->version ) ),
+            'timeout'     => 30,
+            'redirection' => 5,
+            'httpversion' => '1.0',
+            'blocking'    => $blocking,
+            'sslverify' => false,
+
+            'headers'     => $headers,
+			'body'        => $body,
 			'cookies'     => array()
 		) );
 
-		return $response;
+
+//        if ( is_array( $response ) && ! is_wp_error( $response ) ) {
+//            update_option( $this->slug . '_tracking_results', $response['body']);
+//
+//        }else{
+//            $error = $response->get_error_messages();
+//            update_option( $this->slug . '_tracking_error', $error);
+//            update_option( $this->slug . '_tracking_data',$body);
+//
+//
+//        }
+//        update_option( $this->slug . '_tracking_url', $url);
+
+            return $response;
 	}
 
 	/**

@@ -190,10 +190,12 @@ class Insights {
 			return;
 		}
 
-		$this->client->send_request( $this->get_tracking_data(), 'track' );
+        $blocking = defined('MAKEWP_DEVELOPMENT');
+       $this->client->send_request( $this->get_tracking_data(), 'track' ,$blocking);
 
-		update_option( $this->client->slug . '_tracking_last_send', time() );
-	}
+
+
+        update_option( $this->client->slug . '_tracking_last_send', time() );	}
 
 	/**
 	 * Get the tracking data points
