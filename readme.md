@@ -58,7 +58,7 @@ function makeWP_init_tracker_plugin_name() {
         require_once __DIR__ . '/makewpdev/src/Client.php';
     }
 
-    $client = new \Makewpdev\Client( 'QYwQI-Yu79YOd7-bYf3GJJ5hm-uzACdpk-O88JP6', 'Akismet', __FILE__ );
+    $client = new \Makewpdev\Client( 'QYwQI-Yu79YOd7-bYf3GJJ5hm-uzACdpk-O88JP6', 'Plugin Name', __FILE__ );
 
     // Active insights
     $client->insights()->init();
@@ -69,9 +69,9 @@ function makeWP_init_tracker_plugin_name() {
     // Active license page and checker
     $args = array(
         'type'       => 'options',
-        'menu_title' => 'Akismet',
-        'page_title' => 'Akismet License Settings',
-        'menu_slug'  => 'akismet_settings',
+        'menu_title' => 'Plugin Name',
+        'page_title' => 'Plugin Name License Settings',
+        'menu_slug'  => 'plugin_name_settings',
     );
     $client->license()->add_settings_page( $args );
 }
