@@ -382,6 +382,7 @@ class License {
                 font-size: 17px;
                 color: #444444;
                 margin-left: 10px;
+                font-weight: bold;
             }
             .makewp-license-details {
                 padding: 20px;
