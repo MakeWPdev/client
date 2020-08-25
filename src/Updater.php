@@ -111,16 +111,16 @@ class Updater {
 
         // We need to turn the icons into an array
         if ( isset( $value->icons ) ) {
-            $value->icons = (array) $value->icons;
+            $value->icons = is_array($value->icons) ? $value->icons : (array)$value->icons;
         }
 
         // We need to turn the banners into an array
         if ( isset( $value->banners ) ) {
-            $value->banners = (array) $value->banners;
+            $value->banners = is_array($value->banners) ? $value->banners :  (array) $value->banners;
         }
 
         if ( isset( $value->sections ) ) {
-            $value->sections = (array) $value->sections;
+            $value->sections = is_array($value->sections) ? $value->sections:  (array) $value->sections;
         }
 
         return $value;
@@ -155,7 +155,7 @@ class Updater {
 
         $route = 'update/' . $this->client->hash . '/check';
 
-        $response = $this->client->send_request( $params, $route, true );
+        $response = $this->client->send_request( $params, $route, false );
 
         if ( is_wp_error( $response ) ) {
             return false;
