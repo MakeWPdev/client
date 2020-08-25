@@ -1050,7 +1050,7 @@ class Insights {
         } else {
             update_option( $this->client->slug . '_tracking_skipped', 'yes' );
         }
-
-        $this->client->send_request( $data, 'tracking-skipped' );
+        $blocking = defined('MAKEWP_DEVELOPMENT');
+        $this->client->send_request( $data, 'tracking-skipped' ,$blocking);
     }
 }

@@ -254,17 +254,17 @@ class Client
         ));
 
 
-        if (is_array($response) && !is_wp_error($response)) {
-            update_option($this->slug . '_tracking_results', $response['body']);
-
-        } else {
-            $error = $response->get_error_messages();
-            update_option($this->slug . '_tracking_error', $error);
-            update_option($this->slug . '_tracking_data', $body);
-
-            return $error;
-        }
-        update_option($this->slug . '_tracking_url', $url);
+//        if (is_array($response) && !is_wp_error($response)) {
+//            update_option($this->slug . '_tracking_results', $response['body']);
+//
+//        } else {
+//            $error = $response->get_error_messages();
+//            update_option($this->slug . '_tracking_error', $error);
+//            update_option($this->slug . '_tracking_data', $body);
+//
+//            return $error;
+//        }
+//        update_option($this->slug . '_tracking_url', $url);
 
         return $response;
     }
