@@ -25,6 +25,13 @@ class Client {
 	 */
 	public $version = '1.1.11';
 
+
+    /**
+     * UUID for identifier this site
+     * @var
+     */
+	public $uuid;
+
 	/**
 	 * Hash identifier of the plugin
 	 *
@@ -97,12 +104,16 @@ class Client {
 		$this->name = $name;
 		$this->file = $file;
 
+
+
 		$this->set_basename_and_slug();
+
+        $this->uuid = $this->get_uuid();
 	}
 	/**
 	 * Initialize insights class
 	 *
-	 * @return Makewpdev\Insights
+	 * @return Insights
 	 */
 	public function insights() {
 
@@ -116,7 +127,7 @@ class Client {
 	/**
 	 * Initialize plugin/theme updater
 	 *
-	 * @return Makewpdev\Updater
+	 * @return Updater
 	 */
 	public function updater() {
 
@@ -130,7 +141,7 @@ class Client {
 	/**
 	 * Initialize license checker
 	 *
-	 * @return Makewpdev\License
+	 * @return License
 	 */
 	public function license() {
 
@@ -186,7 +197,23 @@ class Client {
 			$this->type = 'theme';
 
 		}
+
+
+
 	}
+
+
+	private function get_uuid(){
+        $identier = 'makewp_'.$this->type.'-'.$this->slug.'_uuid';
+        $uuid = get_option($identier,false);
+        if (!$uuid){
+            $uuid = wp_generate_uuid4();
+            add_option($identier,$uuid);
+        }
+
+        return $uuid;
+    }
+
 
 	/**
 	 * Send request to remote endpoint

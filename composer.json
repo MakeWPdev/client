@@ -1,15 +1,20 @@
 {
-    "name": "makewpdev/client",
-    "description": "MakeWP.dev Client",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Hadie Danker",
-
-            "email": "halo@makewp.dev"
-        }
-    ],
+  "name": "makewpdev/client",
+  "description": "MakeWP.dev Client",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "analytics",
+    "wordpress",
+    "plugin",
+    "theme"
+  ],
+  "authors": [
+    {
+      "name": "Hadie Danker",
+      "email": "halo@makewp.dev"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "Makewpdev\\": "src/"

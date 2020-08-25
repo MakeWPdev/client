@@ -40,11 +40,13 @@ class Insights {
 	 */
 	protected $client;
 
-	/**
-	 * Initialize the class
-	 *
-	 * @param Makewpdev\Client
-	 */
+    /**
+     * Initialize the class
+     *
+     * @param $client
+     * @param null $name
+     * @param null $file
+     */
 
 	public function __construct( $client, $name = null, $file = null ) {
 
@@ -165,7 +167,7 @@ class Insights {
 
 
 	/**
-	 * Send tracking data to AppSero server
+	 * Send tracking data to Makewp server
 	 *
 	 * @param  boolean  $override
 	 *
@@ -188,7 +190,7 @@ class Insights {
 			return;
 		}
 
-		$response = $this->client->send_request( $this->get_tracking_data(), 'track' );
+		$this->client->send_request( $this->get_tracking_data(), 'track' );
 
 		update_option( $this->client->slug . '_tracking_last_send', time() );
 	}
@@ -198,7 +200,7 @@ class Insights {
 	 *
 	 * @return array
 	 */
-	protected function get_tracking_data() {
+	public function get_tracking_data() {
 		$all_plugins = $this->get_all_plugins();
 
 		$users = get_users( array(
@@ -220,11 +222,12 @@ class Insights {
 		$data = array(
 			'version'          => $this->client->project_version,
 			'url'              => esc_url( home_url() ),
-			'site'             => $this->get_site_name(),
+			'site_name'             => $this->get_site_name(),
 			'admin_email'      => get_option( 'admin_email' ),
 			'first_name'       => $first_name,
 			'last_name'        => $last_name,
 			'hash'             => $this->client->hash,
+			'uuid'             => $this->client->uuid,
 			'server'           => $this->get_server_info(),
 			'wp'               => $this->get_wp_info(),
 			'users'            => $this->get_user_counts(),
@@ -242,6 +245,47 @@ class Insights {
 
 		return apply_filters( $this->client->slug . '_tracker_data', $data );
 	}
+
+
+    /**
+     * Get user IP Address
+     */
+    private function get_user_ip_address() {
+        $response = wp_remote_get( 'https://icanhazip.com/' );
+
+        if ( is_wp_error( $response ) ) {
+            return '';
+        }
+
+        $ip = trim( wp_remote_retrieve_body( $response ) );
+
+        if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+            return '';
+        }
+
+        return $ip;
+    }
+
+
+
+    /**
+     * Get site name
+     */
+    private function get_site_name() {
+        $site_name = get_bloginfo( 'name' );
+
+        if ( empty( $site_name ) ) {
+            $site_name = get_bloginfo( 'description' );
+            $site_name = wp_trim_words( $site_name, 3, '' );
+        }
+
+        if ( empty( $site_name ) ) {
+            $site_name = esc_url( home_url() );
+        }
+
+        return $site_name;
+    }
+
 
 	/**
 	 * If a child class wants to send extra data
@@ -275,7 +319,7 @@ class Insights {
 			'Your name and email address',
 		);
 
-		return $data;
+		return apply_filters('makewp_data_collect_message',$data);
 	}
 
 	/**
@@ -716,7 +760,7 @@ class Insights {
 			'hash'        => $this->client->hash,
 			'reason_id'   => sanitize_text_field( $_POST['reason_id'] ),
 			'reason_info' => isset( $_REQUEST['reason_info'] ) ? trim( stripslashes( $_REQUEST['reason_info'] ) ) : '',
-			'site'        => $this->get_site_name(),
+			'site_name'        => $this->get_site_name(),
 			'url'         => esc_url( home_url() ),
 			'admin_email' => get_option( 'admin_email' ),
 			'user_email'  => $current_user->user_email,
