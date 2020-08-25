@@ -10,280 +10,289 @@
 namespace Makewpdev;
 
 
-
-
 /**
  * MakeWP.dev Client
  *
  * This class is necessary to set project data
  */
-class Client {
-	/**
-	 * The client version
-	 *
-	 * @var string
-	 */
-	public $version = '1.1.11';
+class Client
+{
+    /**
+     * The client version
+     *
+     * @var string
+     */
+    public $version = '1.1.11';
 
 
     /**
      * UUID for identifier this site
      * @var
      */
-	public $uuid;
+    public $uuid;
 
-	/**
-	 * Hash identifier of the plugin
-	 *
-	 * @var string
-	 */
-	public $hash;
+    /**
+     * Hash identifier of the plugin
+     *
+     * @var string
+     */
+    public $hash;
 
-	/**
-	 * Name of the plugin
-	 *
-	 * @var string
-	 */
-	public $name;
+    /**
+     * Name of the plugin
+     *
+     * @var string
+     */
+    public $name;
 
-	/**
-	 * The plugin/theme file path
-	 * @example .../wp-content/plugins/test-slug/test-slug.php
-	 *
-	 * @var string
-	 */
-	public $file;
+    /**
+     * The plugin/theme file path
+     * @example .../wp-content/plugins/test-slug/test-slug.php
+     *
+     * @var string
+     */
+    public $file;
 
-	/**
-	 * Main plugin file
-	 * @example test-slug/test-slug.php
-	 *
-	 * @var string
-	 */
-	public $basename;
+    /**
+     * Main plugin file
+     * @example test-slug/test-slug.php
+     *
+     * @var string
+     */
+    public $basename;
 
-	/**
-	 * Slug of the plugin
-	 * @example test-slug
-	 *
-	 * @var string
-	 */
-	public $slug;
+    /**
+     * Slug of the plugin
+     * @example test-slug
+     *
+     * @var string
+     */
+    public $slug;
 
-	/**
-	 * The project version
-	 *
-	 * @var string
-	 */
-	public $project_version;
+    /**
+     * The project version
+     *
+     * @var string
+     */
+    public $project_version;
 
-	/**
-	 * The project type
-	 *
-	 * @var string
-	 */
-	public $type;
+    /**
+     * The project type
+     *
+     * @var string
+     */
+    public $type;
 
-	/**
-	 * textdomain
-	 *
-	 * @var string
-	 */
-	public $textdomain;
+    /**
+     * textdomain
+     *
+     * @var string
+     */
+    public $textdomain;
 
-	/**
-	 * Initialize the class
-	 *
-	 * @param string  $hash hash of the plugin
-	 * @param string  $name readable name of the plugin
-	 * @param string  $file main plugin file path
-	 */
+    /**
+     * Initialize the class
+     *
+     * @param string $hash hash of the plugin
+     * @param string $name readable name of the plugin
+     * @param string $file main plugin file path
+     */
 
-	public function __construct( $hash, $name, $file ) {
-		$this->hash = $hash;
-		$this->name = $name;
-		$this->file = $file;
+    public function __construct($hash, $name, $file)
+    {
+        $this->hash = $hash;
+        $this->name = $name;
+        $this->file = $file;
 
 
-
-		$this->set_basename_and_slug();
+        $this->set_basename_and_slug();
 
         $this->uuid = $this->get_uuid();
-	}
-	/**
-	 * Initialize insights class
-	 *
-	 * @return Insights
-	 */
-	public function insights() {
+    }
 
-		if ( ! class_exists( __NAMESPACE__ . '\Insights') ) {
-			require_once __DIR__ . '/Insights.php';
-		}
+    /**
+     * Initialize insights class
+     *
+     * @return Insights
+     */
+    public function insights()
+    {
 
-		return new Insights( $this );
-	}
+        if (!class_exists(__NAMESPACE__ . '\Insights')) {
+            require_once __DIR__ . '/Insights.php';
+        }
 
-	/**
-	 * Initialize plugin/theme updater
-	 *
-	 * @return Updater
-	 */
-	public function updater() {
+        return new Insights($this);
+    }
 
-		if ( ! class_exists( __NAMESPACE__ . '\Updater') ) {
-			require_once __DIR__ . '/Updater.php';
-		}
+    /**
+     * Initialize plugin/theme updater
+     *
+     * @return Updater
+     */
+    public function updater()
+    {
 
-		return new Updater( $this );
-	}
+        if (!class_exists(__NAMESPACE__ . '\Updater')) {
+            require_once __DIR__ . '/Updater.php';
+        }
 
-	/**
-	 * Initialize license checker
-	 *
-	 * @return License
-	 */
-	public function license() {
+        return new Updater($this);
+    }
 
-		if ( ! class_exists( __NAMESPACE__ . '\License') ) {
-			require_once __DIR__ . '/License.php';
-		}
+    /**
+     * Initialize license checker
+     *
+     * @return License
+     */
+    public function license()
+    {
 
-		return new License( $this );
-	}
+        if (!class_exists(__NAMESPACE__ . '\License')) {
+            require_once __DIR__ . '/License.php';
+        }
 
-	/**
-	 * API Endpoint
-	 *
-	 * @return string
-	 */
-	public function endpoint() {
-	    $url = defined('MAKEWP_DEVELOPMENT') ? 'https://api.makewp.test:8890/v1':'https://api.makewp.dev/v1';
-		$endpoint = apply_filters( 'makewpdev_endpoint', $url );
+        return new License($this);
+    }
 
-		return trailingslashit( $endpoint );
-	}
+    /**
+     * API Endpoint
+     *
+     * @return string
+     */
+    public function endpoint()
+    {
+        $url = defined('MAKEWP_DEVELOPMENT') ? 'https://api.makewp.test:8890/v1' : 'https://api.makewp.dev/v1';
+        $endpoint = apply_filters('makewpdev_endpoint', $url);
 
-	/**
-	 * Set project basename, slug and version
-	 *
-	 * @return void
-	 */
-	protected function set_basename_and_slug() {
+        return trailingslashit($endpoint);
+    }
 
-		if ( strpos( $this->file, WP_CONTENT_DIR . '/themes/' ) === false ) {
+    /**
+     * Set project basename, slug and version
+     *
+     * @return void
+     */
+    protected function set_basename_and_slug()
+    {
 
-			$this->basename = plugin_basename( $this->file );
+        if (strpos($this->file, WP_CONTENT_DIR . '/themes/') === false) {
 
-			list( $this->slug, $mainfile) = explode( '/', $this->basename );
+            $this->basename = plugin_basename($this->file);
 
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+            list($this->slug, $mainfile) = explode('/', $this->basename);
 
-			$plugin_data = get_plugin_data( $this->file );
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-			$this->project_version = $plugin_data['Version'];
-			$this->type = 'plugin';
-			$this->textdomain = $this->slug;
+            $plugin_data = get_plugin_data($this->file);
 
-		} else {
+            $this->project_version = $plugin_data['Version'];
+            $this->type = 'plugin';
+            $this->textdomain = $this->slug;
 
-			$this->basename = str_replace( WP_CONTENT_DIR . '/themes/', '', $this->file );
+        } else {
 
-			list( $this->slug, $mainfile) = explode( '/', $this->basename );
+            $this->basename = str_replace(WP_CONTENT_DIR . '/themes/', '', $this->file);
 
-			$theme = wp_get_theme( $this->slug );
+            list($this->slug, $mainfile) = explode('/', $this->basename);
 
-			$this->project_version = $theme->version;
-			$this->type = 'theme';
+            $theme = wp_get_theme($this->slug);
 
-		}
+            $this->project_version = $theme->version;
+            $this->type = 'theme';
 
-
-
-	}
+        }
 
 
-	private function get_uuid(){
-        $identier = 'makewp_'.$this->type.'-'.$this->slug.'_uuid';
-        $uuid = get_option($identier,false);
-        if (!$uuid){
+    }
+
+
+    private function get_uuid()
+    {
+        $identier = 'makewp_' . $this->type . '-' . $this->slug . '_uuid';
+        $uuid = get_option($identier, false);
+        if (!$uuid) {
             $uuid = wp_generate_uuid4();
-            add_option($identier,$uuid);
+            add_option($identier, $uuid);
         }
 
         return $uuid;
     }
 
 
-	/**
-	 * Send request to remote endpoint
-	 *
-	 * @param  array  $params
-	 * @param  string $route
-	 *
-	 * @return array|WP_Error   Array of results including HTTP headers or WP_Error if the request failed.
-	 */
-	public function send_request( $params, $route, $blocking = false ) {
-		$url = $this->endpoint() . $route;
+    /**
+     * Send request to remote endpoint
+     *
+     * @param array $params
+     * @param string $route
+     *
+     * @return array|WP_Error   Array of results including HTTP headers or WP_Error if the request failed.
+     */
+    public function send_request($params, $route, $blocking = false)
+    {
+        $url = $this->endpoint() . $route;
 
-		$headers = array(
-			'user-agent' => 'MakeWP/' . md5( esc_url( home_url() ) ) . ';',
-			'Accept'     => 'application/json',
+        $headers = array(
+            'user-agent' => 'MakeWP/' . md5(esc_url(home_url())) . ';',
+            'Accept' => 'application/json',
             'Token' => $this->hash,
             'referer' => home_url()
         );
 
-		$body = array_merge( $params, array( 'client' => $this->version ) );
-		$response = wp_remote_post( $url, array(
-			'method'      => 'POST',
-            'timeout'     => 30,
+        $body = array_merge($params, array('client' => $this->version));
+        $response = wp_remote_post($url, array(
+            'method' => 'POST',
+            'timeout' => 30,
             'redirection' => 5,
             'httpversion' => '1.0',
-            'blocking'    => $blocking,
+            'blocking' => $blocking,
             'sslverify' => false,
 
-            'headers'     => $headers,
-			'body'        => $body,
-			'cookies'     => array()
-		) );
+            'headers' => $headers,
+            'body' => $body,
+            'cookies' => array()
+        ));
 
 
-//        if ( is_array( $response ) && ! is_wp_error( $response ) ) {
-//            update_option( $this->slug . '_tracking_results', $response['body']);
-//
-//        }else{
-//            $error = $response->get_error_messages();
-//            update_option( $this->slug . '_tracking_error', $error);
-//            update_option( $this->slug . '_tracking_data',$body);
-//
-//
-//        }
-//        update_option( $this->slug . '_tracking_url', $url);
+        if (is_array($response) && !is_wp_error($response)) {
+            update_option($this->slug . '_tracking_results', $response['body']);
 
-            return $response;
-	}
+        } else {
+            $error = $response->get_error_messages();
+            update_option($this->slug . '_tracking_error', $error);
+            update_option($this->slug . '_tracking_data', $body);
 
-	/**
-	 * Check if the current server is localhost
-	 *
-	 * @return boolean
-	 */
-	public function is_local_server() {
-		return in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ) );
-	}
+            return $error;
+        }
+        update_option($this->slug . '_tracking_url', $url);
 
-	/**
-	 * Translate function _e()
-	 */
-	public function _etrans( $text ) {
-		call_user_func( '_e', $text, $this->textdomain );
-	}
+        return $response;
+    }
 
-	/**
-	 * Translate function __()
-	 */
-	public function __trans( $text ) {
-		return call_user_func( '__', $text, $this->textdomain );
-	}
+    /**
+     * Check if the current server is localhost
+     *
+     * @return boolean
+     */
+    public function is_local_server()
+    {
+        return in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1'));
+    }
+
+    /**
+     * Translate function _e()
+     */
+    public function _etrans($text)
+    {
+        call_user_func('_e', $text, $this->textdomain);
+    }
+
+    /**
+     * Translate function __()
+     */
+    public function __trans($text)
+    {
+        return call_user_func('__', $text, $this->textdomain);
+    }
 
 }

@@ -489,7 +489,7 @@ class Insights {
 	public function optout() {
 		update_option( $this->client->slug . '_allow_tracking', 'no' );
 		update_option( $this->client->slug . '_tracking_notice', 'hide' );
-
+        $this->send_tracking_skipped_request();
 		$this->clear_schedule_event();
 	}
 
@@ -544,7 +544,7 @@ class Insights {
 	private function get_wp_info() {
 		$wp_data = array();
 
-		$wp_data['memory_limit'] = WP_MEMORY_LIMIT;
+		$wp_data['memory_limit'] = defined('WP_MEMORY_LIMIT') ? WP_MEMORY_LIMIT : null;
 		$wp_data['debug_mode']   = ( defined('WP_DEBUG') && WP_DEBUG ) ? 'Yes' : 'No';
 		$wp_data['locale']       = get_locale();
 		$wp_data['version']      = get_bloginfo( 'version' );
@@ -764,8 +764,9 @@ class Insights {
 
 		$current_user = wp_get_current_user();
 
-		$data = array(
+        $params = array(
 			'hash'        => $this->client->hash,
+			'uuid'        => $this->client->uuid,
 			'reason_id'   => sanitize_text_field( $_POST['reason_id'] ),
 			'reason_info' => isset( $_REQUEST['reason_info'] ) ? trim( stripslashes( $_REQUEST['reason_info'] ) ) : '',
 			'site_name'        => $this->get_site_name(),
@@ -783,10 +784,10 @@ class Insights {
 
 		// Add metadata
 		if ( $extra = $this->get_extra_data() ) {
-			$data['extra'] = $extra;
+            $params['extra'] = $extra;
 		}
-
-		$this->client->send_request( $data, 'deactivate' );
+        $blocking = defined('MAKEWP_DEVELOPMENT');
+		$response  = $this->client->send_request( $params, 'deactivate',$blocking );
 
 		wp_send_json_success();
 	}
@@ -815,7 +816,7 @@ class Insights {
         $reasons = $this->get_uninstall_reasons();
         ?>
 
-        <div class="makewp-modal modal-active" id="<?php echo $this->client->slug; ?>-makewp-modal">
+        <div class="makewp-modal " id="<?php echo $this->client->slug; ?>-makewp-modal">
             <div class="makewp-modal-wrap">
                     <?php echo $this->feedback_header();?>
                 <div class="makewp-modal-body">
@@ -838,10 +839,10 @@ class Insights {
                 </div>
 
                 <div class="makewp-modal-footer">
-                    <a href="#" class="dont-bother-me"><?php $this->client->_etrans( "Skip & Deactive" ); ?></a>
+                    <a href="#" class="dont-bother-me" data-action="skip"><?php $this->client->_etrans( "Skip & Deactive" ); ?></a>
                    <div>
-                       <button class="button-secondary"><?php $this->client->_etrans( 'Submit & Deactivate' ); ?></button>
-                       <button class="button-primary"><?php $this->client->_etrans( 'Cancel' ); ?></button>
+                       <button class="button-secondary" data-action="submit"><?php $this->client->_etrans( 'Submit & Deactivate' ); ?></button>
+                       <button class="button-primary" data-action="cancel"><?php $this->client->_etrans( 'Cancel' ); ?></button>
                    </div>
                 </div>
             </div>
@@ -954,9 +955,12 @@ class Insights {
                         modal.find('a.dont-bother-me').attr('href', deactivateLink).css('float', 'left');
                     });
 
-                    modal.on('click', 'button.button-primary', function(e) {
+                    modal.on('click', 'button[data-action="cancel"]', function(e) {
                         e.preventDefault();
+                        var button = $('button.button-secondary');
+                        button.removeClass('disabled');
 
+                        button.text('Submit & Deactive');
                         modal.removeClass('modal-active');
                     });
 
@@ -975,7 +979,7 @@ class Insights {
                         }
                     });
 
-                    modal.on('click', 'button.button-secondary', function(e) {
+                    modal.on('click', 'button[data-action="submit"]', function(e) {
                         e.preventDefault();
 
                         var button = $(this);
@@ -1001,7 +1005,8 @@ class Insights {
                                 button.addClass('disabled');
                                 button.text('Processing...');
                             },
-                            complete: function() {
+                            complete: function(response) {
+                                // console.log(response)
                                 window.location.href = deactivateLink;
                             }
                         });
