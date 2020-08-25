@@ -734,6 +734,12 @@ class Insights {
 				'type'        => 'textarea',
 				'placeholder' => 'What did you expect?'
 			),
+            array(
+                'id'          => 'temporary',
+                'text'        => "it's temporary deactivation",
+                'type'        => '',
+                'placeholder' => ''
+            ),
 			array(
 				'id'          => 'other',
 				'text'        => 'Other',
@@ -784,4 +790,262 @@ class Insights {
 
 		wp_send_json_success();
 	}
+
+
+	private function feedback_header(){
+
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" width="1.3em" height="1.3em"><defs/><path fill-rule="evenodd" d="M16 2a2 2 0 00-2-2H2a2 2 0 00-2 2v8a2 2 0 002 2h9.586a1 1 0 01.707.293l2.853 2.853a.5.5 0 00.854-.353V2zM5 6a1 1 0 11-2 0 1 1 0 012 0zm4 0a1 1 0 11-2 0 1 1 0 012 0zm3 1a1 1 0 100-2 1 1 0 000 2z"/></svg>';
+	    $icon = apply_filters($this->client->slug.'_feedback_header_icon',$svg);
+        $title = apply_filters($this->client->slug.'_feedback_header_icon',$this->client->__trans('Quick Feedback:'));
+
+        return sprintf(' <div class="makewp-modal-header"><h3><span class="makewp-modal-header-icon">%s</span><span>%s</span></h3></div>',$icon,$title);
+    }
+    /**
+     * Handle the plugin deactivation feedback
+     *
+     * @return void
+     */
+    public function deactivate_scripts() {
+        global $pagenow;
+
+        if ( 'plugins.php' != $pagenow ) {
+            return;
+        }
+
+        $reasons = $this->get_uninstall_reasons();
+        ?>
+
+        <div class="makewp-modal modal-active" id="<?php echo $this->client->slug; ?>-makewp-modal">
+            <div class="makewp-modal-wrap">
+                    <?php echo $this->feedback_header();?>
+                <div class="makewp-modal-body">
+                    <ul class="reasons">
+                        <?php foreach ($reasons as $reason) { ?>
+                            <li data-type="<?php echo esc_attr( $reason['type'] ); ?>" data-placeholder="<?php echo esc_attr( $reason['placeholder'] ); ?>">
+                                <label><input type="radio" name="selected-reason" value="<?php echo $reason['id']; ?>"> <?php echo $reason['text']; ?></label>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                    <p class="makewp-modal-reasons-bottom text-help small">
+                        <?php
+                        echo sprintf(
+                            $this->client->__trans( 'We share your data with <a href="%1$s" target="_blank">MakeWP</a> to troubleshoot problems &amp; make product improvements. <a href="%2$s" target="_blank">Learn more</a> about how MakeWP handles your data.'),
+                            esc_url( 'https://makewp.dev/' ),
+                            esc_url( 'https://makewp.dev/privacy-policy' )
+                        );
+                        ?>
+                    </p>
+                </div>
+
+                <div class="makewp-modal-footer">
+                    <a href="#" class="dont-bother-me"><?php $this->client->_etrans( "Skip & Deactive" ); ?></a>
+                   <div>
+                       <button class="button-secondary"><?php $this->client->_etrans( 'Submit & Deactivate' ); ?></button>
+                       <button class="button-primary"><?php $this->client->_etrans( 'Cancel' ); ?></button>
+                   </div>
+                </div>
+            </div>
+        </div>
+
+        <style type="text/css">
+            .dont-bother-me{
+                ont-size: 12px;
+                color: #a4afb7;
+                background: none;
+
+                width: auto;
+            }
+            .makewp-modal {
+                position: fixed;
+                z-index: 99999;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                background: rgba(0,0,0,0.5);
+                display: none;
+
+            }
+
+            .makewp-modal.modal-active {
+                display: block;
+            }
+
+            .makewp-modal-wrap {
+                width: 100%;
+                max-width: 550px;
+
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #fff;
+                -webkit-border-radius: 3px;
+                border-radius: 3px;
+                -webkit-box-shadow: 2px 8px 23px 3px rgba(0, 0, 0, 0.2);
+                box-shadow: 2px 8px 23px 3px rgba(0, 0, 0, 0.2);
+                overflow: hidden;
+            }
+            .makewp-modal-wrap a{
+                text-decoration: none;
+            }
+            .makewp-modal-header {
+                border-bottom: 1px solid #eee;
+                padding: 18px 15px;
+                -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+
+            }
+
+            .makewp-modal-header-icon{
+                margin-right: 5px;
+            }
+            .makewp-modal-header h3 {
+                display: flex;
+                align-items: center;
+                line-height: 1;
+                margin: 0;
+            }
+
+            .makewp-modal-body {
+                padding: 20px 30px 0;
+                min-height: 50px;
+
+                line-height: 1.5;
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+            }
+
+            .makewp-modal-body .reason-input {
+                margin-top: 5px;
+                margin-left: 20px;
+            }
+            .makewp-modal-footer {
+                border-top: 1px solid #eee;
+                padding: 12px 30px;
+                display: -ms-flexbox;
+                display: flex;
+                -ms-flex-align: center;
+                align-items: center;
+                -ms-flex-pack:justify;
+                justify-content: space-between;
+            }
+            .makewp-modal-reasons-bottom {
+                margin: 15px 0 15px 0;
+                font-size: small;
+                color: #aaa;
+            }
+            .makewp-modal-reasons-bottom a{
+                    color:#666;
+            }
+        </style>
+
+        <script type="text/javascript">
+            (function($) {
+                $(function() {
+                    var modal = $( '#<?php echo $this->client->slug; ?>-makewp-modal' );
+                    var deactivateLink = '';
+
+                    $( '#the-list' ).on('click', 'a.<?php echo $this->client->slug; ?>-deactivate-link', function(e) {
+                        e.preventDefault();
+
+                        modal.addClass('modal-active');
+                        deactivateLink = $(this).attr('href');
+                        modal.find('a.dont-bother-me').attr('href', deactivateLink).css('float', 'left');
+                    });
+
+                    modal.on('click', 'button.button-primary', function(e) {
+                        e.preventDefault();
+
+                        modal.removeClass('modal-active');
+                    });
+
+                    modal.on('click', 'input[type="radio"]', function () {
+                        var parent = $(this).parents('li:first');
+
+                        modal.find('.reason-input').remove();
+
+                        var inputType = parent.data('type'),
+                            inputPlaceholder = parent.data('placeholder'),
+                            reasonInputHtml = '<div class="reason-input">' + ( ( 'text' === inputType ) ? '<input type="text" size="40" />' : '<textarea rows="5" cols="45"></textarea>' ) + '</div>';
+
+                        if ( inputType !== '' ) {
+                            parent.append( $(reasonInputHtml) );
+                            parent.find('input, textarea').attr('placeholder', inputPlaceholder).focus();
+                        }
+                    });
+
+                    modal.on('click', 'button.button-secondary', function(e) {
+                        e.preventDefault();
+
+                        var button = $(this);
+
+                        if ( button.hasClass('disabled') ) {
+                            return;
+                        }
+
+                        var $radio = $( 'input[type="radio"]:checked', modal );
+
+                        var $selected_reason = $radio.parents('li:first'),
+                            $input = $selected_reason.find('textarea, input[type="text"]');
+
+                        $.ajax({
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: {
+                                action: '<?php echo $this->client->slug; ?>_submit-uninstall-reason',
+                                reason_id: ( 0 === $radio.length ) ? 'none' : $radio.val(),
+                                reason_info: ( 0 !== $input.length ) ? $input.val().trim() : ''
+                            },
+                            beforeSend: function() {
+                                button.addClass('disabled');
+                                button.text('Processing...');
+                            },
+                            complete: function() {
+                                window.location.href = deactivateLink;
+                            }
+                        });
+                    });
+                });
+            }(jQuery));
+        </script>
+
+        <?php
+    }
+
+    /**
+     * Run after theme deactivated
+     * @param  string $new_name
+     * @param  object $new_theme
+     * @param  object $old_theme
+     * @return void
+     */
+    public function theme_deactivated( $new_name, $new_theme, $old_theme ) {
+        // Make sure this is appsero theme
+        if ( $old_theme->get_template() == $this->client->slug ) {
+            $this->client->send_request( $this->get_tracking_data(), 'deactivate' );
+        }
+    }
+
+
+    /**
+     * Send request to appsero if user skip to send tracking data
+     */
+    private function send_tracking_skipped_request() {
+        $skipped = get_option( $this->client->slug . '_tracking_skipped' );
+
+        $data = [
+            'hash'               => $this->client->hash,
+            'previously_skipped' => false,
+            'uuid' => $this->client->uuid,
+        ];
+
+        if ( $skipped === 'yes' ) {
+            $data['previously_skipped'] = true;
+        } else {
+            update_option( $this->client->slug . '_tracking_skipped', 'yes' );
+        }
+
+        $this->client->send_request( $data, 'tracking-skipped' );
+    }
 }
